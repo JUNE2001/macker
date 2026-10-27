@@ -8,6 +8,13 @@ die() {
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+ENV_FILE="${ROOT_DIR}/.env"
+if [[ ! -f "${ENV_FILE}" ]]; then
+  cp "${ROOT_DIR}/.env.example" "${ENV_FILE}" || die ".env 생성 실패"
+  chmod 600 "${ENV_FILE}"
+  echo "[*] .env가 없어 공용 로컬 기본값으로 생성했습니다."
+fi
+
 FB_VERSION="9.2.1"
 FB_TARBALL="filebeat-${FB_VERSION}-darwin-aarch64.tar.gz"
 FB_URL="https://artifacts.elastic.co/downloads/beats/filebeat/${FB_TARBALL}"

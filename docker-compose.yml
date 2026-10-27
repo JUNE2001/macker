@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
 
   # --- 초기 유저/롤 셋업용 서비스 ---
@@ -17,15 +15,12 @@ services:
       - ./setup/roles:/roles:ro,Z
       - ./setup/rules:/rules:ro,Z
       - ./setup/mapping.json:/mapping.json:ro,Z
+      - ./setup/index-template-mac.json:/index-templates/index-template-mac.json:ro,Z
+      - ./setup/index-template-fsevents.json:/index-templates/index-template-fsevents.json:ro,Z
     environment:
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
       LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
       KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
-      METRICBEAT_INTERNAL_PASSWORD: ${METRICBEAT_INTERNAL_PASSWORD:-}
-      FILEBEAT_INTERNAL_PASSWORD: ${FILEBEAT_INTERNAL_PASSWORD:-}
-      HEARTBEAT_INTERNAL_PASSWORD: ${HEARTBEAT_INTERNAL_PASSWORD:-}
-      MONITORING_INTERNAL_PASSWORD: ${MONITORING_INTERNAL_PASSWORD:-}
-      BEATS_SYSTEM_PASSWORD: ${BEATS_SYSTEM_PASSWORD:-}
     network_mode: service:elasticsearch
     depends_on:
       - elasticsearch
@@ -129,6 +124,7 @@ services:
       - ./setup/rules:/rules:ro
       - ./setup/dataview:/dataview:ro
       - ./setup/dashboard:/dashboard:ro
+      - ./setup/mapping.json:/mapping.json:ro
     environment:
       KIBANA_URL: http://kibana:5601
       KIBANA_USER: elastic
@@ -194,6 +190,37 @@ services:
             -F "file=@$$f" \
             "$$KIBANA_URL/api/detection_engine/rules/_import?overwrite=true"
         done
+
+        echo "------------------------------------------------"
+        echo "4. Applying alert runtime-field mapping..."
+        MAPPING_APPLIED=false
+        for i in $$(seq 1 30); do
+          STATUS_CODE=$$(curl -s -o /dev/null -w "%{http_code}" -I \
+            -u "$$KIBANA_USER:$$KIBANA_PASSWORD" \
+            "http://elasticsearch:9200/.internal.alerts-security.alerts-default-*")
+
+          if [ "$$STATUS_CODE" = "200" ]; then
+            RESPONSE_CODE=$$(curl -s -o /dev/null -w "%{http_code}" -X PUT \
+              -u "$$KIBANA_USER:$$KIBANA_PASSWORD" \
+              -H "Content-Type: application/json" \
+              --data-binary @/mapping.json \
+              "http://elasticsearch:9200/.internal.alerts-security.alerts-default-*/_mapping")
+
+            if [ "$$RESPONSE_CODE" = "200" ]; then
+              MAPPING_APPLIED=true
+              echo "  Alert mapping applied."
+              break
+            fi
+          fi
+
+          echo "  Alert index not ready ($$i/30)..."
+          sleep 2
+        done
+
+        if [ "$$MAPPING_APPLIED" != "true" ]; then
+          echo "Failed to apply alert mapping."
+          exit 1
+        fi
 
         echo "------------------------------------------------"
         echo "Import finished."

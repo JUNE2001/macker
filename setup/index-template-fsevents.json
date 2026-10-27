@@ -1,0 +1,42 @@
+{
+  "index_patterns": ["fsevents-*"],
+  "priority": 200,
+  "template": {
+    "settings": {
+      "index.refresh_interval": "10s",
+      "index.number_of_replicas": 1
+    },
+    "mappings": {
+      "properties": {
+        "event": {
+          "properties": {
+            "original": {
+              "type": "keyword",
+              "index": false,
+              "doc_values": false
+            }
+          }
+        },
+        "fsevents": {
+          "properties": {
+            "file": {
+              "properties": {
+                "path": { "type": "keyword" },
+                "dest_path": { "type": "keyword" },
+                "extension": { "type": "keyword" },
+                "entropy": { "type": "double" }
+              }
+            },
+            "ransomware": {
+              "properties": {
+                "chi_square": { "type": "double" },
+                "new_extension": { "type": "keyword" },
+                "original_extension": { "type": "keyword" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

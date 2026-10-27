@@ -1,0 +1,78 @@
+{
+  "index_patterns": ["mac-*"],
+  "priority": 200,
+  "template": {
+    "settings": {
+      "index.refresh_interval": "10s",
+      "index.number_of_replicas": 1
+    },
+    "mappings": {
+      "properties": {
+        "event": {
+          "properties": {
+            "original": {
+              "type": "keyword",
+              "index": false,
+              "doc_values": false
+            }
+          }
+        },
+        "aul": {
+          "properties": {
+            "traceID": {
+              "type": "unsigned_long"
+            },
+            "activityIdentifier": {
+              "type": "unsigned_long"
+            },
+            "creatorActivityID": {
+              "type": "unsigned_long"
+            },
+            "parentActivityIdentifier": {
+              "type": "unsigned_long"
+            },
+            "machTimestamp": {
+              "type": "unsigned_long"
+            },
+            "senderProgramCounter": {
+              "type": "unsigned_long"
+            },
+            "threadID": {
+              "type": "unsigned_long"
+            },
+            "eventMessage": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 1024
+                }
+              }
+            },
+            "formatString": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 1024
+                }
+              }
+            },
+            "processImageUUID": {
+              "type": "keyword",
+              "doc_values": false
+            },
+            "senderImageUUID": {
+              "type": "keyword",
+              "doc_values": false
+            },
+            "bootUUID": {
+              "type": "keyword",
+              "doc_values": false
+            }
+          }
+        }
+      }
+    }
+  }
+}

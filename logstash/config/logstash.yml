@@ -7,3 +7,8 @@ api.http.host: 0.0.0.0
 node.name: logstash
 
 queue.type: persisted
+
+# 단일 Filebeat 입력에는 CPU 코어 수만큼의 worker가 필요하지 않습니다.
+pipeline.workers: 2
+pipeline.batch.size: 125
+pipeline.batch.delay: 50

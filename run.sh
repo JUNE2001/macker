@@ -23,7 +23,16 @@ fi
 # 0-2. 필수 명령어 확인
 command -v curl >/dev/null 2>&1    || die "curl 명령을 찾을 수 없습니다."
 command -v docker >/dev/null 2>&1  || die "docker 명령을 찾을 수 없습니다."
-command -v python3 >/dev/null 2>&1 || die "python3 명령을 찾을 수 없습니다."
+PYTHON_BASE="/usr/bin/python3"
+[[ -x "${PYTHON_BASE}" ]] || die "macOS 기본 Python을 찾을 수 없습니다: ${PYTHON_BASE}"
+
+# Homebrew Python의 externally-managed 환경을 건드리지 않도록
+# 프로젝트 전용 가상환경에서 Python 의존성을 관리합니다.
+VENV_DIR="${ROOT_DIR}/.venv"
+if [[ ! -x "${VENV_DIR}/bin/python" ]]; then
+  "${PYTHON_BASE}" -m venv "${VENV_DIR}" || die "Python 가상환경 생성 실패"
+fi
+PYTHON_BIN="${VENV_DIR}/bin/python"
 
 # 0-3. docker compose 확인
 if command -v docker compose >/dev/null 2>&1; then
@@ -49,11 +58,11 @@ PY_SCRIPT_SRC="${SRC_DIR}/fsevents_logger.py"
 echo "    - Python watchdog 라이브러리 설치 확인..."
 
 # > /dev/null 2>&1 : 확인 과정의 불필요한 출력 메시지를 숨김
-if python3 -m pip show watchdog > /dev/null 2>&1; then
+if "${PYTHON_BIN}" -m pip show watchdog > /dev/null 2>&1; then
     echo "    - watchdog 라이브러리가 이미 설치되어 있습니다. (Skip)"
 else
     echo "    - watchdog 미설치됨. 설치를 시작합니다..."
-    python3 -m pip install watchdog || die "watchdog 라이브러리 설치 실패"
+    "${PYTHON_BIN}" -m pip install watchdog || die "watchdog 라이브러리 설치 실패"
 fi
 
 echo "[*] Step 1. Filebeat tarball 다운로드"
@@ -132,7 +141,7 @@ cleanup() {
 trap cleanup SIGINT SIGTERM EXIT
 
 echo "    - 1/2 Starting fsevents_logger.py..."
-python3 fsevents_logger.py &
+"${PYTHON_BIN}" fsevents_logger.py &
 PY_PID=$!
 
 sleep 1

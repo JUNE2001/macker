@@ -128,6 +128,7 @@ class FSEventsLogger(FileSystemEventHandler):
     
     def __init__(self, log_file, rotation_config):
         self.log_file = log_file
+        self.log_dir_abs = os.path.abspath(os.path.dirname(log_file))
         self.event_count = 0
         self.filtered_count = 0
         self.rotation_check_interval = 100
@@ -139,6 +140,14 @@ class FSEventsLogger(FileSystemEventHandler):
         print(f"✓ Advanced Detection: Entropy + Chi-Square Enabled")
     
     def should_ignore(self, path):
+        # 로거가 자신의 출력 디렉터리를 다시 감시해 이벤트를 증폭시키는 것을 방지합니다.
+        path_abs = os.path.abspath(path)
+        try:
+            if os.path.commonpath([path_abs, self.log_dir_abs]) == self.log_dir_abs:
+                return True
+        except ValueError:
+            pass
+
         basename = os.path.basename(path)
         if basename in SYSTEM_FILES: return True
         for pattern in TEMP_FILE_PATTERNS:

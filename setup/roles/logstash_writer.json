@@ -10,7 +10,9 @@
         "logs-generic-default",
         "logstash-*",
         "ecs-logstash-*",
-        "my-mac-*" 
+        "my-mac-*",
+        "mac-*",
+        "fsevents-*"
       ],
       "privileges": [
         "write",

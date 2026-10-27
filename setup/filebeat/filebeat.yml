@@ -16,50 +16,50 @@ filebeat.inputs:
 - type: unifiedlogs
   id: unifiedlogs-id
   enabled: true
-  debug: true
+  debug: false
   tags: ["macOS","aul"]
   backfill: false
   predicate:
-  - 'process contains "backgroundtaskmanagementd"'
-  - 'process contains "backupd"'
-  - 'process contains "bluetoothd"'
-  - 'process contains "cfprefsd"'
-  - 'process contains "codesign"'
-  - 'process contains "CoreServicesUIAgent"'
-  - 'process contains "cron"'
-  - 'process contains "crontab"'
-  - 'process contains "curl"'
-  - 'process contains "ditto"'
-  - 'process contains "dscl"'
-  - 'process contains "kernel"'
-  - 'process contains "launchctl"'
-  - 'process contains "ls"'
-  - 'process contains "lsof"'
-  - 'process contains "mdfind"'
-  - 'process contains "mDNSResponder"'
-  - 'process contains "nc"'
-  - 'process contains "netstat"'
-  - 'process contains "opendirectoryd"'
-  - 'process contains "osascript"'
-  - 'process contains "pboard"'
-  - 'process contains "pkgutil"'
-  - 'process contains "ps"'
-  - 'process contains "runningboardd"'
-  - 'process contains "screencapture"'
-  - 'process contains "screensharingd"'
-  - 'process contains "scutil"'
-  - 'process contains "security"'
-  - 'process contains "sftp-server"'
-  - 'process contains "sharing"'
-  - 'process contains "shutdown"'
-  - 'process contains "smbd"'
-  - 'process contains "spctl"'
-  - 'process contains "sshd-session"'
-  - 'process contains "sudo"'
-  - 'process contains "sw_vers"'
-  - 'process contains "symptomsd"'
-  - 'process contains "systemsetup"'
-  - 'process contains "tccd"'
+  - 'process == "backgroundtaskmanagementd"'
+  - 'process == "backupd"'
+  - 'process == "bluetoothd"'
+  - 'process == "cfprefsd"'
+  - 'process == "codesign"'
+  - 'process == "CoreServicesUIAgent"'
+  - 'process == "cron"'
+  - 'process == "crontab"'
+  - 'process == "curl"'
+  - 'process == "ditto"'
+  - 'process == "dscl"'
+  - 'process == "kernel"'
+  - 'process == "launchctl"'
+  - 'process == "ls"'
+  - 'process == "lsof"'
+  - 'process == "mdfind"'
+  - 'process == "mDNSResponder"'
+  - 'process == "nc"'
+  - 'process == "netstat"'
+  - 'process == "opendirectoryd"'
+  - 'process == "osascript"'
+  - 'process == "pboard"'
+  - 'process == "pkgutil"'
+  - 'process == "ps"'
+  - 'process == "runningboardd"'
+  - 'process == "screencapture"'
+  - 'process == "screensharingd"'
+  - 'process == "scutil"'
+  - 'process == "security"'
+  - 'process == "sftp-server"'
+  - 'process == "sharing"'
+  - 'process == "shutdown"'
+  - 'process == "smbd"'
+  - 'process == "spctl"'
+  - 'process == "sshd-session"'
+  - 'process == "sudo"'
+  - 'process == "sw_vers"'
+  - 'process == "symptomsd"'
+  - 'process == "systemsetup"'
+  - 'process == "tccd"'
 - type: filestream
   enabled: true
   paths:
@@ -248,9 +248,6 @@ processors:
       when.not.contains.tags: forwarded
       #when.not.contains.fields: ["host.name"] # 'host' 필드가 이미 있는 경우에만 실행
       netinfo.enabled: true
-  - add_cloud_metadata: ~
-  - add_docker_metadata: ~
-  - add_kubernetes_metadata: ~
 
 # ================================== Logging ===================================
 
